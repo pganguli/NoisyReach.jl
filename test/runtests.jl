@@ -12,7 +12,7 @@ const errors = [0.27, 0.27]
 
 @testset "NoisyReach.jl" begin
     # Linearized bicycle model of the F1/10 race car
-    sys = let 
+    sys = let
         v = 6.5
         L = 0.3302
         d = 1.5
@@ -20,7 +20,7 @@ const errors = [0.27, 0.27]
         B = [0; v/L]
         C = [1 0]
         D = 0
-    
+
         ss(A, B, C, D)
     end
 

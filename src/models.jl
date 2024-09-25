@@ -20,7 +20,7 @@ sys_rcn = let
 end
 
 # F1-tenth car
-sys_f1t = let 
+sys_f1t = let
     v = 6.5
     L = 0.3302
     d = 1.5

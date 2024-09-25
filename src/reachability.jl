@@ -22,7 +22,7 @@ function reach(Φ::AbstractMatrix, x0::LazySet, W::LazySet, H::Integer; max_orde
 			x[k] = reduce_order(x[k], reduced_order)
 		end
 	end
-	
+
 	F = Flowpipe([ReachSet(x_k, k) for (k, x_k) in enumerate(x)])
 end
 
@@ -38,7 +38,7 @@ end
 """
 	get_error_bound(B, K, E)
 
-Calculate the additivie error bound zonotope W from matrices B, K, and 
+Calculate the additivie error bound zonotope W from matrices B, K, and
 perception error zonotope E. The perception error zonotope E is constructed
 from the maximum perception error in each state dimension.
 """
