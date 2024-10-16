@@ -8,22 +8,27 @@ Compute reachable sets for the dynamics ``x[k+1] = Φ x[k] + w``, where ``w`` is
 
 If `max_order` is given, we reduce order of the reachable set to `reduced_order` when it exceeds this limit.  If `remove_redundant` is true, redundant generators are removed at each step.
 """
-function reach(Φ::AbstractMatrix, x0::LazySet, W::LazySet, H::Integer; max_order::Real=Inf, reduced_order::Real=2, remove_redundant::Bool=true)
-	# Preallocate x vector
-	x = OffsetArray(Vector{LazySet}(undef, H+1), Origin(0))
-	x[0] = x0
+function reach(Φ::AbstractMatrix, x0::LazySet, W::LazySet, H::Integer; kwargs...)
+  reach(Φ, x0, (_) -> W, H; kwargs...)
+end
 
-	for k = 1:H
-		x[k] = minkowski_sum(linear_map(Φ, x[k-1]), W)
-		if remove_redundant
-			x[k] = remove_redundant_generators(x[k])
-		end
-		if order(x[k]) > max_order
-			x[k] = reduce_order(x[k], reduced_order)
-		end
-	end
+function reach(Φ::AbstractMatrix, x0::LazySet, W_func::Function, H::Integer; max_order::Real=Inf, reduced_order::Real=2, remove_redundant::Bool=true)
+  # Preallocate x vector
+  x = OffsetArray(Vector{LazySet}(undef, H + 1), Origin(0))
+  x[0] = x0
 
-	F = Flowpipe([ReachSet(x_k, k) for (k, x_k) in enumerate(x)])
+  for k = 1:H
+    W = W_func(x[k-1])
+    x[k] = minkowski_sum(linear_map(Φ, x[k-1]), W)
+    if remove_redundant
+      x[k] = remove_redundant_generators(x[k])
+    end
+    if order(x[k]) > max_order
+      x[k] = reduce_order(x[k], reduced_order)
+    end
+  end
+
+  F = Flowpipe([ReachSet(x_k, k) for (k, x_k) in enumerate(x)])
 end
 
 """
@@ -32,7 +37,7 @@ end
 Return the maximum diameter of reachable sets in a Flowpipe.
 """
 function max_diam(pipe::Flowpipe)
-	maximum([diameter(rs.X) for rs in pipe])
+  maximum([diameter(rs.X) for rs in pipe])
 end
 
 """
@@ -43,5 +48,5 @@ perception error zonotope E. The perception error zonotope E is constructed
 from the maximum perception error in each state dimension.
 """
 function get_error_bound(B::Matrix, K::Matrix, E::Zonotope)
-	linear_map(B * (-K), E) |> remove_redundant_generators
+  linear_map(B * (-K), E) |> remove_redundant_generators
 end
