@@ -44,18 +44,16 @@ function evolve(A::AbstractMatrix, B::AbstractMatrix, K::AbstractMatrix, H::Inte
   return z
 end
 
-function ideal_evolve(A::AbstractMatrix, B::AbstractMatrix, K::AbstractMatrix, H::Integer, z0::Vector{Float64}, u1_0::Float64, u2_0::Float64)
-  u0 = [u1_0; u2_0]
-  z = Vector{typeof(z0)}(undef, H + 1)
-  u = Vector{typeof(u0)}(undef, H)
-  z[1] = z0
+function ideal_evolve(A::AbstractMatrix, B::AbstractMatrix, K::AbstractMatrix, H::Integer, x0::Vector{Float64}, u0::Float64)
+  u0 =[u0]
+  x = Vector{typeof(x0)}(undef, H + 1)
+  u = Vector{typeof(u0)}(undef, H + 1)
+  x[1] = x0
   u[1] = u0
-  z[2] = A * z[1] + B * u[1]
-  z[2][end-length(u2_0)+1:end, :] .= 0
-  for k in 2:H
-    u[k] = K * z[k]
-    z[k+1] = A * z[k] + B * u[k]
+  for k in 1:H
+    x[k+1] = A * x[k] + B * u[k]
+    u[k+1] = K * x[k+1]
   end
-  return z
+  return x
 end
 end
