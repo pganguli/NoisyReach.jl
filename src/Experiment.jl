@@ -45,7 +45,7 @@ function evolve(A::AbstractMatrix, B::AbstractMatrix, K::AbstractMatrix, H::Inte
 end
 
 function ideal_evolve(A::AbstractMatrix, B::AbstractMatrix, K::AbstractMatrix, H::Integer, x0::Vector{Float64}, u0::Float64)
-  u0 =[u0]
+  u0 = [u0]
   x = Vector{typeof(x0)}(undef, H + 1)
   u = Vector{typeof(u0)}(undef, H + 1)
   x[1] = x0
