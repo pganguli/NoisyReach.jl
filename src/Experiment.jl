@@ -41,7 +41,7 @@ function evolve(A::AbstractMatrix, B::AbstractMatrix, K::AbstractMatrix, H::Inte
     u[k] = K_error * z[k]
     z[k+1] = A * z[k] + B * u[k]
   end
-  return z
+  return z, u
 end
 
 function ideal_evolve(A::AbstractMatrix, B::AbstractMatrix, K::AbstractMatrix, H::Integer, x0::Vector{Float64}, u0::Float64)
@@ -54,6 +54,6 @@ function ideal_evolve(A::AbstractMatrix, B::AbstractMatrix, K::AbstractMatrix, H
     x[k+1] = A * x[k] + B * u[k]
     u[k+1] = K * x[k+1]
   end
-  return x
+  return x, u
 end
 end
