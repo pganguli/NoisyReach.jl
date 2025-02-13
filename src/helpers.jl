@@ -41,7 +41,8 @@ function simulate(sys::StateSpace, K::AbstractMatrix, H::Integer, x₀::Abstract
 
   x[1] = x₀
   for k in 1:H
-    uₖ = K * x[k]; u[k] = isa(uₖ, AbstractVector) ? uₖ : [uₖ]
+    uₖ = -K * x[k]
+    u[k] = isa(uₖ, AbstractVector) ? uₖ : [uₖ]
     x[k+1] = sys.A * x[k] + sys.B * u[k]
   end
 
@@ -65,7 +66,7 @@ function synthesize(sys::StateSpace{Continuous}, h::Real)
 end
 
 """
-	synthesize(sys, h)
+	synthesize(sys, h, Dc)
 
 Synthesize discrete-time state space model `sys_` and corresponding controller `K` for conntinuous-time state space model `sys`,
 for sampling period `h` and input-delay `Dc`.
@@ -86,7 +87,7 @@ function synthesize(sys::StateSpace{Continuous}, h::Real, Dc::Real)
 end
 
 """
-	synthesize(sys, h)
+	synthesize(sys, h, Dc₁, Dc₂)
 
 Synthesize discrete-time state space model `sys_` and corresponding controller `K` for conntinuous-time state space model `sys`,
 for sampling period `h` and input-delays `Dc₁` and `Dc₂`.
@@ -99,6 +100,28 @@ function synthesize(sys::StateSpace{Continuous}, h::Real, Dc₁::Real, Dc₂::Re
     Γ₂ = int_expAs_B(sys.A, sys.B, 0.0, h - Dc₂)
     ϕ_aug = [ϕ Γ₃; 0 0 0]
     Γ_aug = [Γ₁ Γ₂; 0 I]
+    C_aug = [sys.C 0]
+    D_aug = [sys.D 0]
+    ss(ϕ_aug, Γ_aug, C_aug, D_aug, h)
+  end
+  K = lqr(Discrete, sys_.A, sys_.B, I, I)
+  return sys_, K
+end
+
+"""
+	synthesize(sys, h, Dc₁, Dc₂, n)
+
+Synthesize discrete-time state space model `sys_` and corresponding controller `K` for conntinuous-time state space model `sys`,
+for sampling period `h` and input-delays `Dc₁` and `Dc₂`.
+"""
+function synthesize(sys::StateSpace{Continuous}, h::Real, Dc₁::Real, Dc₂::Real, n::Integer)
+  sys_ = let
+    ϕ = ℯ^(h * sys.A)
+    Γ₁ = int_expAs_B(sys.A, sys.B, h - Dc₁, Dc₂ - Dc₁ - (n - 1) * h)
+    Γ₂ = int_expAs_B(sys.A, sys.B, 0.0, n * h - Dc₂ + Dc₁)
+    Γ₃ = int_expAs_B(sys.A, sys.B, 0.0, h - Dc₁)
+    ϕ_aug = [ϕ Γ₁; 0 0 0]
+    Γ_aug = [Γ₃ Γ₂; 0 I]
     C_aug = [sys.C 0]
     D_aug = [sys.D 0]
     ss(ϕ_aug, Γ_aug, C_aug, D_aug, h)
@@ -133,17 +156,30 @@ function K_uncertain(K::AbstractMatrix, σ₁::Real, σ₂::Real, μ::Real)
   return K_
 end
 
-function plot_trajectories(traj::AbstractVector, traj_ideal::AbstractVector, xlim::Real, ylim::Real; fname::String="", xlabel::String="\$x_1\$", ylabel="\$x_2\$", title::String="", fontsize::Real=1.8)
-  Plots.scalefontsizes(fontsize)
+"""
+	plot_trajectories(traj, traj_ideal, xlim, ylim; fname, xlabel, ylabel, title)
 
+Plot the trajectories.
+"""
+function plot_trajectories(traj::AbstractVector, traj_ideal::AbstractVector; xlim::Real=0, ylim::Real=0, fname::String="", xlabel::String="\$x_1\$", ylabel="\$x_2\$", title::String="")
   traj_plot = plot(xlabel=xlabel, ylabel=ylabel, title=title)
 
   for tr in traj
+    if (xlim != 0 || ylim != 0)
       plot!([pt[1] for pt in tr], [pt[2] for pt in tr],
-            xlim=(0, xlim), ylim=(0, ylim), label="", linecolor=:lightgray, linewidth=1)
+          xlim=(0, xlim), ylim=(0, ylim), label="", linecolor=:lightgray, linewidth=1)
+    else
+      plot!([pt[1] for pt in tr], [pt[2] for pt in tr],
+          label="", linecolor=:lightgray, linewidth=1)
+    end
   end
-  plot!([pt[1] for pt in traj_ideal], [pt[2] for pt in traj_ideal],
-        xlim=(0, xlim), ylim=(0, ylim), label="", linecolor=:black, linewidth=2, marker=:circle, markercolor=:red, markersize=3)
+  if (xlim != 0 || ylim != 0)
+    plot!([pt[1] for pt in traj_ideal], [pt[2] for pt in traj_ideal],
+          xlim=(0, xlim), ylim=(0, ylim), label="", linecolor=:black, linewidth=2, marker=:circle, markercolor=:red, markersize=3)
+  else
+    plot!([pt[1] for pt in traj_ideal], [pt[2] for pt in traj_ideal],
+          label="", linecolor=:black, linewidth=2, marker=:circle, markercolor=:red, markersize=3)
+  end
 
   fname != "" && savefig(traj_plot, fname)
 
