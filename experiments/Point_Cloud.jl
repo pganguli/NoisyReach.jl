@@ -14,7 +14,6 @@ begin
   pythonplot()
 end
 
-
 experiment = ("casa", 0)
 
 const sys = benchmarks[:F1]
@@ -43,11 +42,10 @@ Hd=$Hd
 
 sys_c, K_c = synthesize(sys, hc)
 x₀ = fill(x0, size(sys.A, 1))
+xc, uc = simulate(sys_c, Hc, x₀, K_certain, K_c)
 
 sys_d, K_d = synthesize(sys, hd)
 z₀ = fill(x0, size(sys.A, 1))
-
-xc, uc = simulate(sys_c, Hc, x₀, K_certain, K_c)
 xds, uds = unzip([simulate(sys_d, Hd, z₀, K_uncertain, K_d, pointcloud_data[experiment[1]][experiment[2]]["rel_err"]) for _ in 1:N])
 
 println("Trajectories that failed to converge:\n", [i for i in 1:N if isnothing(first_convergence([0.0, 0.0], xds[i], threshold=1e-2))])

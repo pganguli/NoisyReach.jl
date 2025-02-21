@@ -5,7 +5,7 @@ using ControlSystemsBase: ss, lqr, Continuous, Discrete, StateSpace
 using Plots
 
 unzip(a) = (getfield.(a, x) for x in fieldnames(eltype(a)))
-global COUNTER = 1
+global COUNTER = 0
 
 """
 	int_expAs_B(A, B, lo, hi)
@@ -48,7 +48,7 @@ Returns `λ`, where ``λ \\sim seq(experimental data)``
 """
 function seq_sample(list::AbstractVector)
   global COUNTER
-  λ = list[COUNTER % size(list,1)]
+  λ = list[COUNTER % size(list,1) + 1]
   COUNTER += 1
   @debug "λ=$λ\tCOUNTER=$COUNTER"
   return λ
@@ -178,7 +178,7 @@ end
 Compute `K'` such that ``u[k+1] = K' \\cdot x[k+1]`` is deviated as per i.i.d assumption on experimental data.
 """
 function K_uncertain(K::AbstractMatrix, list::AbstractVector)
-  λ = [seq_sample(list) for _ in 1:size(K, 2)-1]
+  λ = [iid_sample(list) for _ in 1:size(K, 2)-1]
   K_ = [(K[1, 1:end-1] .* (1 .- λ)); K[1, end]]'
   @debug "λ=$λ"
   return K_
