@@ -1,4 +1,4 @@
-using ControlSystemsBase: ss, tf, c2d
+using ControlSystemsBase: ss, tf
 using LinearAlgebra: I
 
 # Resistor-capacitor network

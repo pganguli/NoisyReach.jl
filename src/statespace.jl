@@ -1,0 +1,122 @@
+using QuadGK: quadgk
+using LinearAlgebra: I, ℯ
+using ControlSystemsBase: ss, lqr, Continuous, Discrete, StateSpace
+
+"""
+	int_expAs_B(A, B, lo, hi)
+
+Compute ``\\int_{\\text{lo}}^{\\text{hi}} e^{As} \\cdot B \\, ds``.
+"""
+function int_expAs_B(A::AbstractMatrix, B::AbstractMatrix, lo::Real, hi::Real)
+  integrand = s -> exp(A * s) * B
+  result, _ = quadgk(integrand, lo, hi)
+  return result
+end
+
+"""
+	simulate(sys, K, H, x₀)
+
+Return `x, u`, where ``x[k+1] = sys.A \\cdot x[k] + sys.B \\cdot u[k]`` and ``u[k+1] = K \\cdot x[k+1]`` for `H` steps.
+Also note that, ``x[0] = x₀``.
+"""
+function simulate(sys::StateSpace, H::Integer, x₀::AbstractVector, K, args...)
+  x = Vector{Vector{Float64}}(undef, H + 1)
+  u = Vector{Vector{Float64}}(undef, H)
+
+  x[1] = x₀
+  for k in 1:H
+    uₖ = -K(args...) * x[k]
+    uₖ = isa(uₖ, AbstractVector) ? uₖ : [uₖ]
+    if any(ismissing.(uₖ))
+      u[k] = k == 1 ? zeros(size(uₖ)) : u[k-1]
+    else
+      u[k] = uₖ
+    end
+    x[k+1] = sys.A * x[k] + sys.B * u[k]
+  end
+
+  return x, u
+end
+
+"""
+	synthesize(sys, h)
+
+Synthesize discrete-time state space model `sys_` and corresponding controller `K` for conntinuous-time state space model `sys`,
+for sampling period `h`.
+NOTE: Usual discretization.
+"""
+function synthesize(sys::StateSpace{Continuous}, h::Real)
+  sys_ = let
+    ϕ = ℯ^(h * sys.A)
+    Γ = int_expAs_B(sys.A, sys.B, 0.0, h)
+    ss(ϕ, Γ, sys.C, sys.D, h)
+  end
+  K = lqr(Discrete, sys_.A, sys_.B, I, I)
+  return sys_, K
+end
+
+"""
+	synthesize(sys, h, Dc)
+
+Synthesize discrete-time state space model `sys_` and corresponding controller `K` for conntinuous-time state space model `sys`,
+for sampling period `h` and input-delay `Dc`.
+NOTE: Usual discretization with computation delay.
+"""
+function synthesize(sys::StateSpace{Continuous}, h::Real, Dc::Real)
+  sys_ = let
+    ϕ = ℯ^(h * sys.A)
+    Γ₀ = int_expAs_B(sys.A, sys.B, 0.0, h - Dc)
+    Γ₁ = int_expAs_B(sys.A, sys.B, h - Dc, h)
+    ϕ_aug = [ϕ Γ₁; 0 0 0]
+    Γ_aug = [Γ₀; I]
+    C_aug = [sys.C 0]
+    ss(ϕ_aug, Γ_aug, C_aug, sys.D, h)
+  end
+  K = lqr(Discrete, sys_.A, sys_.B, I, I)
+  return sys_, K
+end
+
+"""
+	synthesize(sys, h, Dc₁, Dc₂)
+
+Synthesize discrete-time state space model `sys_` and corresponding controller `K` for conntinuous-time state space model `sys`,
+for sampling period `h` and input-delays `Dc₁` and `Dc₂`.
+NOTE: Split computing delays assuming `Dc₁`,`Dc₂` < `h`.
+"""
+function synthesize(sys::StateSpace{Continuous}, h::Real, Dc₁::Real, Dc₂::Real)
+  sys_ = let
+    ϕ = ℯ^(h * sys.A)
+    Γ₃ = int_expAs_B(sys.A, sys.B, h - Dc₂, h - Dc₂ + Dc₁)
+    Γ₁ = int_expAs_B(sys.A, sys.B, 0.0, Dc₂ - Dc₁)
+    Γ₂ = int_expAs_B(sys.A, sys.B, 0.0, h - Dc₂)
+    ϕ_aug = [ϕ Γ₃; 0 0 0]
+    Γ_aug = [Γ₁ Γ₂; 0 I]
+    C_aug = [sys.C 0]
+    D_aug = [sys.D 0]
+    ss(ϕ_aug, Γ_aug, C_aug, D_aug, h)
+  end
+  K = lqr(Discrete, sys_.A, sys_.B, I, I)
+  return sys_, K
+end
+
+"""
+	synthesize(sys, h, Dc₁, Dc₂, n)
+
+Synthesize discrete-time state space model `sys_` and corresponding controller `K` for conntinuous-time state space model `sys`,
+for sampling period `h` and input-delays `Dc₁` and `Dc₂`.
+"""
+function synthesize(sys::StateSpace{Continuous}, h::Real, Dc₁::Real, Dc₂::Real, n::Integer)
+  sys_ = let
+    ϕ = ℯ^(h * sys.A)
+    Γ₁ = int_expAs_B(sys.A, sys.B, h - Dc₁, Dc₂ - Dc₁ - (n - 1) * h)
+    Γ₂ = int_expAs_B(sys.A, sys.B, 0.0, n * h - Dc₂ + Dc₁)
+    Γ₃ = int_expAs_B(sys.A, sys.B, 0.0, h - Dc₁)
+    ϕ_aug = [ϕ Γ₁; 0 0 0]
+    Γ_aug = [Γ₃ Γ₂; 0 I]
+    C_aug = [sys.C 0]
+    D_aug = [sys.D 0]
+    ss(ϕ_aug, Γ_aug, C_aug, D_aug, h)
+  end
+  K = lqr(Discrete, sys_.A, sys_.B, I, I)
+  return sys_, K
+end
