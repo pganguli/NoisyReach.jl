@@ -60,7 +60,7 @@ end
 
 Synthesize discrete-time state space model `sys_` and corresponding controller `K` for conntinuous-time state space model `sys`,
 for sampling period `h` and input-delay `Dc`.
-NOTE: Usual discretization with computation delay.
+NOTE: [Case-3] Usual discretization with computation delay.
 """
 function synthesize(sys::StateSpace{Continuous}, h::Real, Dc::Real)
   sys_ = let
@@ -77,11 +77,32 @@ function synthesize(sys::StateSpace{Continuous}, h::Real, Dc::Real)
 end
 
 """
+	synthesize(sys, h, Dc)
+
+Synthesize discrete-time state space model `sys_` and corresponding controller `K` for conntinuous-time state space model `sys`,
+for sampling period `h` and input-delay `Dc`.
+NOTE: [Case-4] Usual discretization with computation delay > `n*h`.
+"""
+function synthesize(sys::StateSpace{Continuous}, h::Real, Dc::Real, n::Integer)
+  sys_ = let
+    ϕ = ℯ^(h * sys.A)
+    Γ₁ = int_expAs_B(sys.A, sys.B, (n+1)*h - Dc, Dc - n*h)
+    Γ₂ = int_expAs_B(sys.A, sys.B, 0.0, (n+1)*h - Dc)
+    ϕ_aug = ϕ
+    Γ_aug = [Γ₁ Γ₂; 0 0]
+    C_aug = [sys.C 0]
+    ss(ϕ_aug, Γ_aug, C_aug, sys.D, h)
+  end
+  K = lqr(Discrete, sys_.A, sys_.B, I, I)
+  return sys_, K
+end
+
+"""
 	synthesize(sys, h, Dc₁, Dc₂)
 
 Synthesize discrete-time state space model `sys_` and corresponding controller `K` for conntinuous-time state space model `sys`,
 for sampling period `h` and input-delays `Dc₁` and `Dc₂`.
-NOTE: Split computing delays assuming `Dc₁`,`Dc₂` < `h`.
+NOTE: [Case-0] Split computing delays assuming `Dc₁`, `Dc₂` < `h`.
 """
 function synthesize(sys::StateSpace{Continuous}, h::Real, Dc₁::Real, Dc₂::Real)
   sys_ = let
@@ -104,19 +125,39 @@ end
 
 Synthesize discrete-time state space model `sys_` and corresponding controller `K` for conntinuous-time state space model `sys`,
 for sampling period `h` and input-delays `Dc₁` and `Dc₂`.
+NOTE: [Case-1] Split computing delays assuming `u_c[k-n]` arrives before `u_e[k]`.
+NOTE: [Case-2] Split computing delays assuming `u_c[k-n]` arrives after `u_e[k]`.
 """
-function synthesize(sys::StateSpace{Continuous}, h::Real, Dc₁::Real, Dc₂::Real, n::Integer)
-  sys_ = let
-    ϕ = ℯ^(h * sys.A)
-    Γ₁ = int_expAs_B(sys.A, sys.B, h - Dc₁, Dc₂ - Dc₁ - (n - 1) * h)
-    Γ₂ = int_expAs_B(sys.A, sys.B, 0.0, n * h - Dc₂ + Dc₁)
-    Γ₃ = int_expAs_B(sys.A, sys.B, 0.0, h - Dc₁)
-    ϕ_aug = [ϕ Γ₁; 0 0 0]
-    Γ_aug = [Γ₃ Γ₂; 0 I]
-    C_aug = [sys.C 0]
-    D_aug = [sys.D 0]
-    ss(ϕ_aug, Γ_aug, C_aug, D_aug, h)
+function synthesize(sys::StateSpace{Continuous}, h::Real, Dc₁::Real, Dc₂::Real, n::Integer; ue_before_uc::Bool)
+  # NOTE: [Case-2] Split computing delays assuming `u_c[k-n]` arrives after `u_e[k]`.
+  if ue_before_uc
+    sys_ = let
+      ϕ = ℯ^(h * sys.A)
+      Γ₁ = int_expAs_B(sys.A, sys.B, (n+1) * h - Dc₂, (n + 1) * h - Dc₂ + Dc₁)
+      Γ₂ = int_expAs_B(sys.A, sys.B, 0.0, Dc₂ - Dc₁ - n * h)
+      Γ₃ = int_expAs_B(sys.A, sys.B, 0.0, (n+1) * h - Dc₂)
+      ϕ_aug = [ϕ Γ₁; 0 0 0]
+      Γ_aug = [Γ₃ Γ₂; I 0]
+      C_aug = [sys.C 0]
+      D_aug = [sys.D 0]
+      ss(ϕ_aug, Γ_aug, C_aug, D_aug, h)
+    end
+    K = lqr(Discrete, sys_.A, sys_.B, I, I)
+    return sys_, K
+  # NOTE: [Case-1] Split computing delays assuming `u_c[k-n]` arrives before `u_e[k]`.
+  else
+    sys_ = let
+      ϕ = ℯ^(h * sys.A)
+      Γ₁ = int_expAs_B(sys.A, sys.B, h - Dc₁, Dc₂ - Dc₁ - (n - 1) * h)
+      Γ₂ = int_expAs_B(sys.A, sys.B, 0.0, n * h - Dc₂ + Dc₁)
+      Γ₃ = int_expAs_B(sys.A, sys.B, 0.0, h - Dc₁)
+      ϕ_aug = [ϕ Γ₁; 0 0 0]
+      Γ_aug = [Γ₃ Γ₂; I 0]
+      C_aug = [sys.C 0]
+      D_aug = [sys.D 0]
+      ss(ϕ_aug, Γ_aug, C_aug, D_aug, h)
+    end
+    K = lqr(Discrete, sys_.A, sys_.B, I, I)
+    return sys_, K
   end
-  K = lqr(Discrete, sys_.A, sys_.B, I, I)
-  return sys_, K
 end
