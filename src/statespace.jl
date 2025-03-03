@@ -91,7 +91,8 @@ function synthesize(sys::StateSpace{Continuous}, h::Real, Dc::Real, n::Integer)
     ϕ_aug = ϕ # TODO: Verify
     Γ_aug = [Γ₁ Γ₂; 0 0]
     C_aug = [sys.C 0]
-    ss(ϕ_aug, Γ_aug, C_aug, sys.D, h)
+    D_aug = [sys.D 0]
+    ss(ϕ_aug, Γ_aug, C_aug, D_aug, h)
   end
   K = lqr(Discrete, sys_.A, sys_.B, I, I)
   return sys_, K
@@ -203,3 +204,24 @@ function synthesize(sys::StateSpace{Continuous}, h::Real, Dc₁::Real, Dc₂::Re
     return sys_, K
   end
 end
+
+#"""
+#	synthesize(sys, h, Dc₁, Dc₂, n)
+#
+#Synthesize discrete-time state space model `sys_` and corresponding controller `K` for conntinuous-time state space model `sys`,
+#for sampling period `h` and input-delays `Dc₁` and `Dc₂`.
+#NOTE: [Case-7] Split computing delays assuming `u_e[k]` merge with `u_c[k-n]` at α ratio.
+#"""
+#function synthesize(sys::StateSpace{Continuous}, h::Real, Dc₁::Real, Dc₂::Real, n::Integer, α::Real)
+#  sys_ = let
+#    ϕ = ℯ^(h * sys.A)
+#    Γ₀ = int_expAs_B(sys.A, sys.B, 0.0, h - Dc)
+#    Γ₁ = int_expAs_B(sys.A, sys.B, h - Dc, h)
+#    ϕ_aug = [ϕ Γ₁; 0 0 0]
+#    Γ_aug = [Γ₀; I]
+#    C_aug = [sys.C 0]
+#    ss(ϕ_aug, Γ_aug, C_aug, sys.D, h)
+#  end
+#  K = lqr(Discrete, sys_.A, sys_.B, I, I)
+#  return sys_, K
+#end
