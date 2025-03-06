@@ -88,7 +88,7 @@ function synthesize(sys::StateSpace{Continuous}, h::Real, Dc::Real, n::Integer)
     ϕ = ℯ^(h * sys.A)
     Γ₁ = int_expAs_B(sys.A, sys.B, (n+1)*h - Dc, Dc - n*h)
     Γ₂ = int_expAs_B(sys.A, sys.B, 0.0, (n+1)*h - Dc)
-    ϕ_aug = [ϕ Γ₁ ;0 0 0] # TODO: Verify
+    ϕ_aug = [ϕ Γ₁; 0 0 0]
     Γ_aug = [Γ₂; I]
     C_aug = [sys.C 0]
     D_aug = [sys.D 0]
@@ -192,7 +192,7 @@ function synthesize(sys::StateSpace{Continuous}, h::Real, Dc₁::Real, Dc₂::Re
     sys_ = let
       ϕ = ℯ^(h * sys.A)
       Γ₁ = int_expAs_B(sys.A, sys.B, h - Dc₁, Dc₂ - Dc₁ - (n - 1) * h)
-      Γ₂ = int_expAs_B(sys.A, sys.B, 0.0, n * h - Dc₂ + Dc₁) # TODO: Verify
+      Γ₂ = int_expAs_B(sys.A, sys.B, 0.0, n * h - Dc₂ + Dc₁)
       Γ₃ = int_expAs_B(sys.A, sys.B, 0.0, h - Dc₁)
       ϕ_aug = [ϕ Γ₁ Γ₁*(1-α); 0 0 0 0; 0 0 0 0]
       Γ_aug = [(Γ₃*α) (Γ₃*(1-α)+Γ₂); I 0; 0 I]
