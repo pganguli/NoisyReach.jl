@@ -16,7 +16,7 @@ begin
   Random.seed!(123) # Setting the seed
 end
 
-const sys = benchmarks[:F1]
+const sys = benchmarks[:CC]
 const N = 500
 
 const x0 = 1000.0
@@ -81,7 +81,7 @@ println("$(experiment[1]) @ $(experiment[2])")
 println("mean_rmse_dev₁	std_rmse_dev₁	mean_mean_u₁	std_mean_u₁")
 println("$mean_rmse_dev₁	$std_rmse_dev₁	$mean_mean_u₁	$std_mean_u₁")
 
-convergences = [first_convergence([0.0, 0.0], xds[i], threshold=1e-2) for i in 1:N]
+#convergences = [first_convergence([0.0, 0.0], xds[i], threshold=1e-2) for i in 1:N]
 #median(convergences)
 
 #plot_trajectories(xds[8], xc, hd, hc, T)
