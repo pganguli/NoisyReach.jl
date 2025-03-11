@@ -39,10 +39,10 @@ function plot_trajectories(
   traj::AbstractVector, traj_ideal::AbstractVector, hd::Real, hc::Real, T::Real;
   xlim::Union{Real,Nothing}=nothing, ylim::Union{Real,Nothing}=nothing,
   fname::String="", title::String="")
-  traj_plot = plot(xlabel="\$Time [s]\$", title=title)
+  traj_plot = plot(xlabel="\$Time [s]\$", title=title, fmt=:svg)
 
-  traj_plot = plot(0:hc:T, hcat(traj_ideal...)', lab=["x₁(t)" "x₂(t)"], linecolor=[:red :blue], alpha=0.6)
-  traj_plot = plot!(0:hd:T, hcat(traj...)', lab=["x₁[k]" "x₂[k]"], linecolor=[:magenta :cyan], alpha=0.6, marker=:circle, markersize=2)
+  traj_plot = plot!(0:hc:T, hcat(traj_ideal...)', lab=["x₁(t)" "x₂(t)"], linecolor=[:red :blue], alpha=0.6, fmt=:svg)
+  traj_plot = plot!(0:hd:T, hcat(traj...)', lab=["x₁[k]" "x₂[k]"], linecolor=[:magenta :cyan], alpha=0.6, marker=:circle, markersize=2, fmt=:svg)
 
   if !isnothing(xlim) && !isnothing(ylim)
     xlims!(0, xlim)
