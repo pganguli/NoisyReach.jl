@@ -75,6 +75,7 @@ begin
   const x0 = 1000.0
   const u0 = 0.0
   const hc = 1e-4
+  nothing
 end
 
 # ╔═╡ f73455e6-e275-4b02-93fe-cb311a60fdc4
@@ -83,28 +84,28 @@ md"""
 """
 
 # ╔═╡ 565778df-82b2-448d-a6bd-626d8fe7fc31
-@bind T   Slider(0.1:0.1:10, default=2.5, show_value=true)
+T = @bind T   Slider(0.1:0.1:10, default=2.5, show_value=true)
 
 # ╔═╡ 3635e9ac-8429-49bf-93dd-96eec97b807f
-@bind hd  Slider(0:0.01:0.1, default=0.02, show_value=true)
+hd = @bind hd  Slider(0:0.01:0.1, default=0.02, show_value=true)
 
 # ╔═╡ 9e2f99ea-b711-492f-915d-4981325856e7
-@bind α   Slider(0:0.1:1, default=0.5, show_value=true)
+α = @bind α   Slider(0:0.1:1, default=0.5, show_value=true)
 
 # ╔═╡ ac159d66-9878-4aca-aa88-0dd576481010
-@bind Dcₑ Slider(0:0.001:5, default=0.005, show_value=true)
+Dcₑ = @bind Dcₑ Slider(0:0.001:5, default=0.005, show_value=true)
 
 # ╔═╡ 24abfc73-8ff4-4a2b-b377-78c134fea835
-@bind Dcₔ Slider(0:0.001:5, default=0.075, show_value=true)
+Dcₔ = @bind Dcₔ Slider(0:0.001:5, default=0.075, show_value=true)
 
 # ╔═╡ 8f06880f-0046-4569-a790-19b03988f36a
-@bind σₑ  Slider(0:0.05:10, default=0.3, show_value=true)
+σₑ = @bind σₑ  Slider(0:0.05:10, default=0.3, show_value=true)
 
 # ╔═╡ f421fe0b-b121-4c74-9ea2-b45c328759b6
-@bind σₔ  Slider(0:0.05:10, default=0.2, show_value=true)
+σₔ = @bind σₔ  Slider(0:0.05:10, default=0.2, show_value=true)
 
 # ╔═╡ 20d653a3-9489-4671-9432-ddad7e83bc8a
-@bind μ   Slider(-5:0.05:5, default=0, show_value=true)
+μ = @bind μ   Slider(-5:0.05:5, default=0, show_value=true)
 
 # ╔═╡ 0d3bfeca-b728-466a-a8c9-4b4187072d55
 md"""
@@ -116,6 +117,7 @@ begin
   @show const n = floor(Int, Dcₔ / hd)
   @show const Hc = floor(Int, T / hc)
   @show const Hd = floor(Int, T / hd)
+  nothing
 end
 
 # ╔═╡ e9b3e724-0703-4aec-a8be-1af5da0a9ebe
@@ -134,6 +136,7 @@ begin
 
   x₀ = fill(x0, size(sys.A, 1))
   xc, uc = simulate(sys_c, Hc, x₀, K_certain, K_c)
+  nothing
 end
 
 # ╔═╡ 672d6769-0077-4c3a-9991-7f70b72edac4
@@ -320,14 +323,14 @@ md"""
 # ╟─3cd33b19-87de-4280-8a5f-73f071c08c4b
 # ╟─ca5f1534-4201-4dab-a917-9d0d15b0f13d
 # ╟─f73455e6-e275-4b02-93fe-cb311a60fdc4
-# ╠═565778df-82b2-448d-a6bd-626d8fe7fc31
-# ╠═3635e9ac-8429-49bf-93dd-96eec97b807f
-# ╠═9e2f99ea-b711-492f-915d-4981325856e7
-# ╠═ac159d66-9878-4aca-aa88-0dd576481010
+# ╟─565778df-82b2-448d-a6bd-626d8fe7fc31
+# ╟─3635e9ac-8429-49bf-93dd-96eec97b807f
+# ╟─9e2f99ea-b711-492f-915d-4981325856e7
+# ╟─ac159d66-9878-4aca-aa88-0dd576481010
 # ╠═24abfc73-8ff4-4a2b-b377-78c134fea835
-# ╠═8f06880f-0046-4569-a790-19b03988f36a
-# ╠═f421fe0b-b121-4c74-9ea2-b45c328759b6
-# ╠═20d653a3-9489-4671-9432-ddad7e83bc8a
+# ╟─8f06880f-0046-4569-a790-19b03988f36a
+# ╟─f421fe0b-b121-4c74-9ea2-b45c328759b6
+# ╟─20d653a3-9489-4671-9432-ddad7e83bc8a
 # ╟─0d3bfeca-b728-466a-a8c9-4b4187072d55
 # ╟─2d2f7f38-fe61-44d4-b3a4-0bd584da7c1a
 # ╟─e9b3e724-0703-4aec-a8be-1af5da0a9ebe
