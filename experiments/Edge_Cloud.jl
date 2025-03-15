@@ -84,13 +84,13 @@ md"""
 """
 
 # ╔═╡ 565778df-82b2-448d-a6bd-626d8fe7fc31
-T = @bind T   Slider(0.1:0.1:10, default=2.5, show_value=true)
+T = @bind T Slider(0.1:0.1:10, default=2.5, show_value=true)
 
 # ╔═╡ 3635e9ac-8429-49bf-93dd-96eec97b807f
-hd = @bind hd  Slider(0:0.01:0.1, default=0.02, show_value=true)
+hd = @bind hd Slider(0:0.01:0.1, default=0.02, show_value=true)
 
 # ╔═╡ 9e2f99ea-b711-492f-915d-4981325856e7
-α = @bind α   Slider(0:0.1:1, default=0.5, show_value=true)
+α = @bind α Slider(0:0.1:1, default=0.5, show_value=true)
 
 # ╔═╡ ac159d66-9878-4aca-aa88-0dd576481010
 Dcₑ = @bind Dcₑ Slider(0:0.001:5, default=0.005, show_value=true)
@@ -99,13 +99,13 @@ Dcₑ = @bind Dcₑ Slider(0:0.001:5, default=0.005, show_value=true)
 Dcₔ = @bind Dcₔ Slider(0:0.001:5, default=0.075, show_value=true)
 
 # ╔═╡ 8f06880f-0046-4569-a790-19b03988f36a
-σₑ = @bind σₑ  Slider(0:0.05:10, default=0.3, show_value=true)
+σₑ = @bind σₑ Slider(0:0.05:10, default=0.3, show_value=true)
 
 # ╔═╡ f421fe0b-b121-4c74-9ea2-b45c328759b6
-σₔ = @bind σₔ  Slider(0:0.05:10, default=0.2, show_value=true)
+σₔ = @bind σₔ Slider(0:0.05:10, default=0.2, show_value=true)
 
 # ╔═╡ 20d653a3-9489-4671-9432-ddad7e83bc8a
-μ = @bind μ   Slider(-5:0.05:5, default=0, show_value=true)
+μ = @bind μ Slider(-5:0.05:5, default=0, show_value=true)
 
 # ╔═╡ 0d3bfeca-b728-466a-a8c9-4b4187072d55
 md"""
@@ -327,7 +327,7 @@ md"""
 # ╟─3635e9ac-8429-49bf-93dd-96eec97b807f
 # ╟─9e2f99ea-b711-492f-915d-4981325856e7
 # ╟─ac159d66-9878-4aca-aa88-0dd576481010
-# ╠═24abfc73-8ff4-4a2b-b377-78c134fea835
+# ╟─24abfc73-8ff4-4a2b-b377-78c134fea835
 # ╟─8f06880f-0046-4569-a790-19b03988f36a
 # ╟─f421fe0b-b121-4c74-9ea2-b45c328759b6
 # ╟─20d653a3-9489-4671-9432-ddad7e83bc8a
