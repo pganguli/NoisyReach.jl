@@ -16,7 +16,7 @@ begin
   Random.seed!(123) # Setting the seed
 end
 
-const sys = benchmarks[:CC]
+const sys = benchmarks[:F1]
 const N = 500
 
 const x0 = 1000.0
