@@ -84,28 +84,31 @@ md"""
 """
 
 # ╔═╡ 565778df-82b2-448d-a6bd-626d8fe7fc31
-T = @bind T Slider(0.1:0.1:10, default=2.5, show_value=true)
+T = 2.5 #@bind T Slider(0.1:0.1:10, default=5, show_value=true)
 
 # ╔═╡ 3635e9ac-8429-49bf-93dd-96eec97b807f
-hd = @bind hd Slider(0:0.01:T, default=0.02, show_value=true)
+hd = 0.020 #@bind hd Slider(0:0.01:5, default=0.04, show_value=true)
 
 # ╔═╡ 9e2f99ea-b711-492f-915d-4981325856e7
 α = @bind α Slider(0:0.1:1, default=0.5, show_value=true)
 
 # ╔═╡ ac159d66-9878-4aca-aa88-0dd576481010
-Dcₑ = @bind Dcₑ Slider(0:0.001:hd, default=0.01, show_value=true)
+Dcₑ = 0.005 #@bind Dcₑ Slider(0:0.001:5, default=0.019, show_value=true)
 
 # ╔═╡ 24abfc73-8ff4-4a2b-b377-78c134fea835
-Dcₔ = @bind Dcₔ Slider(0:0.001:5, default=0.1, show_value=true)
-
-# ╔═╡ f421fe0b-b121-4c74-9ea2-b45c328759b6
-σₔ = @bind σₔ Slider(0:0.05:10, default=0.3, show_value=true)
+Dcₔ = 0.040 #@bind Dcₔ Slider(0:0.001:5, default=0.098, show_value=true)
 
 # ╔═╡ 8f06880f-0046-4569-a790-19b03988f36a
-σₑ = @bind σₑ Slider(σₔ:0.05:10, default=0.7, show_value=true)
+σₑ = 0.3 #@bind σₑ Slider(0:0.05:15, default=0.5, show_value=true)
+
+# ╔═╡ f421fe0b-b121-4c74-9ea2-b45c328759b6
+σₔ = 0.2 #@bind σₔ Slider(0:0.05:15, default=0.31, show_value=true)
 
 # ╔═╡ 20d653a3-9489-4671-9432-ddad7e83bc8a
-μ = @bind μ Slider(-5:0.05:5, default=0, show_value=true)
+μₑ = 0.0 #@bind μₑ Slider(-5:0.05:5, default=0.0, show_value=true)
+
+# ╔═╡ b6f3ab08-0c81-40aa-af99-e5f1c20cc318
+μₔ = 0.0 #@bind μₔ Slider(-5:0.05:5, default=0.0, show_value=true)
 
 # ╔═╡ 0d3bfeca-b728-466a-a8c9-4b4187072d55
 md"""
@@ -150,7 +153,7 @@ begin
   z₀ = [fill(x0, size(sys.A, 1)); u0]
   sys_d, K_d = synthesize(sys, hd, Dcₑ)
 
-  xds, uds = unzip([simulate(sys_d, Hd, z₀, K_uncertain, K_d, σₑ, μ) for _ in 1:N])
+  xds, uds = unzip([simulate(sys_d, Hd, z₀, K_uncertain, K_d, σₑ, μₑ) for _ in 1:N])
   xds = [[xd_i[1:2] for xd_i in xd] for xd in xds]
   uds = [[ud_i[1] for ud_i in ud] for ud in uds]
 end
@@ -206,7 +209,7 @@ begin
   z₀ = [fill(x0, size(sys.A, 1) * (n + 1)); u0]
   sys_d, K_d = synthesize(sys, hd, Dcₔ)
 
-  xds, uds = unzip([simulate(sys_d, Hd, z₀, K_uncertain, K_d, σₔ, μ) for _ in 1:N])
+  xds, uds = unzip([simulate(sys_d, Hd, z₀, K_uncertain, K_d, σₔ, μₔ) for _ in 1:N])
   xds = [[xd_i[1:2] for xd_i in xd] for xd in xds]
   uds = [[ud_i[1] for ud_i in ud] for ud in uds]
 end
@@ -262,7 +265,7 @@ begin
   z₀ = [fill(x0, size(sys.A, 1) * (n + 1)); u0; u0]
   sys_d, K_d = synthesize(sys, hd, Dcₑ, Dcₔ, α)
 
-  xds, uds = unzip([simulate(sys_d, Hd, z₀, K_uncertain, K_d, σₑ, σₔ, μ) for _ in 1:N])
+  xds, uds = unzip([simulate(sys_d, Hd, z₀, K_uncertain, K_d, σₑ, σₔ, μₑ, μₔ) for _ in 1:N])
   xds = [[xd_i[1:2] for xd_i in xd] for xd in xds]
   uds = [[ud_i[1] for ud_i in ud] for ud in uds]
 end
@@ -321,16 +324,17 @@ md"""
 # ╟─08bed08d-7ce8-4f07-b055-c1e5b9e33ade
 # ╟─cb10d46e-378a-4726-90ea-e1f4b4be796f
 # ╟─3cd33b19-87de-4280-8a5f-73f071c08c4b
-# ╟─ca5f1534-4201-4dab-a917-9d0d15b0f13d
+# ╠═ca5f1534-4201-4dab-a917-9d0d15b0f13d
 # ╟─f73455e6-e275-4b02-93fe-cb311a60fdc4
-# ╟─565778df-82b2-448d-a6bd-626d8fe7fc31
-# ╟─3635e9ac-8429-49bf-93dd-96eec97b807f
-# ╟─9e2f99ea-b711-492f-915d-4981325856e7
-# ╟─ac159d66-9878-4aca-aa88-0dd576481010
-# ╟─24abfc73-8ff4-4a2b-b377-78c134fea835
-# ╟─8f06880f-0046-4569-a790-19b03988f36a
-# ╟─f421fe0b-b121-4c74-9ea2-b45c328759b6
+# ╠═565778df-82b2-448d-a6bd-626d8fe7fc31
+# ╠═3635e9ac-8429-49bf-93dd-96eec97b807f
+# ╠═9e2f99ea-b711-492f-915d-4981325856e7
+# ╠═ac159d66-9878-4aca-aa88-0dd576481010
+# ╠═24abfc73-8ff4-4a2b-b377-78c134fea835
+# ╠═8f06880f-0046-4569-a790-19b03988f36a
+# ╠═f421fe0b-b121-4c74-9ea2-b45c328759b6
 # ╟─20d653a3-9489-4671-9432-ddad7e83bc8a
+# ╟─b6f3ab08-0c81-40aa-af99-e5f1c20cc318
 # ╟─0d3bfeca-b728-466a-a8c9-4b4187072d55
 # ╟─2d2f7f38-fe61-44d4-b3a4-0bd584da7c1a
 # ╟─e9b3e724-0703-4aec-a8be-1af5da0a9ebe

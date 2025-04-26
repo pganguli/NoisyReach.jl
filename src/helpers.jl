@@ -75,9 +75,9 @@ end
 Compute `K'` such that ``u[k+1] = K' \\cdot x[k+1]`` is deviated by `σ₁, σ₂` centered around `μ`.
 NOTE: Assume ``x' = (1-λ) \\cdot x``.
 """
-function K_uncertain(K::AbstractMatrix, σ₁::Real, σ₂::Real, μ::Real)
-  λ₁ = [normal_sample(σ₁, μ) for _ in 1:size(K, 2)-1]
-  λ₂ = [normal_sample(σ₂, μ) for _ in 1:size(K, 2)-1]
+function K_uncertain(K::AbstractMatrix, σ₁::Real, σ₂::Real, μ₁::Real, μ₂::Real)
+  λ₁ = [normal_sample(σ₁, μ₁) for _ in 1:size(K, 2)-1]
+  λ₂ = [normal_sample(σ₂, μ₂) for _ in 1:size(K, 2)-1]
   K_ = [
     [(K[1, 1:end-1] .* (1 .- λ₁)); K[1, end]]';
     [(K[2, 1:end-1] .* (1 .- λ₂)); K[2, end]]'
