@@ -84,7 +84,7 @@ md"""
 """
 
 # ╔═╡ 565778df-82b2-448d-a6bd-626d8fe7fc31
-T = @bind T Slider(0.1:0.1:10, default=2.5, show_value=true)
+T = @bind T Slider(0.1:0.1:10, default=1.5, show_value=true)
 
 # ╔═╡ 3635e9ac-8429-49bf-93dd-96eec97b807f
 hd = @bind hd Slider(0:0.01:T, default=0.02, show_value=true)
@@ -99,10 +99,10 @@ Dcₑ = @bind Dcₑ Slider(0:0.001:hd, default=0.01, show_value=true)
 Dcₔ = @bind Dcₔ Slider(0:0.001:5, default=0.1, show_value=true)
 
 # ╔═╡ f421fe0b-b121-4c74-9ea2-b45c328759b6
-σₔ = @bind σₔ Slider(0:0.05:10, default=0.3, show_value=true)
+σₔ = @bind σₔ Slider(0:0.05:15, default=0.3, show_value=true)
 
 # ╔═╡ 8f06880f-0046-4569-a790-19b03988f36a
-σₑ = @bind σₑ Slider(σₔ:0.05:10, default=0.7, show_value=true)
+σₑ = @bind σₑ Slider(σₔ:0.05:15, default=0.7, show_value=true)
 
 # ╔═╡ 20d653a3-9489-4671-9432-ddad7e83bc8a
 μ = @bind μ Slider(-5:0.05:5, default=0, show_value=true)

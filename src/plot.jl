@@ -10,20 +10,35 @@ function plot_trajectories(
   trajs::Vector{Vector{Vector{Float64}}}, traj_ideal::Vector{Vector{Float64}}, hd::Real, hc::Real, T::Real;
   xlim::Union{Real,Nothing}=nothing, ylim::Union{Real,Nothing}=nothing,
   fname::String="", title::String="", plot_y=false)
-  traj_plot = plot(xlabel="\$Time [s]\$", title=title, fmt=:svg)
+  traj_plot = plot(xlabel="\$Time\\ (s)\$", ylabel="\$x_1\$", title=title, fmt=:svg, guidefont=16, tickfont=12)
 
+  #
+  # IDEAL
+  #
   data_to_plot = hcat(traj_ideal...)'[1:end, plot_y ? (1:2) : 1]
-  traj_plot = plot!(0:hc:T, data_to_plot, lab=["x₁(t)" "x₂(t)"], linecolor=[:red :blue], alpha=0.6, fmt=:svg)
+  traj_plot = plot!(0:hc:T, data_to_plot, lab="Ideal \$x_1\$",           linecolor=:green,   alpha=0.6, linestyle=:solid, marksershape=:none, lw=:auto, ms=2, mcolor=:green, legendfontsize=12, fmt=:svg)
 
   max_traj = [maximum(traj[i] for traj in trajs) for i in 1:length(trajs[1])]
   min_traj = [minimum(traj[i] for traj in trajs) for i in 1:length(trajs[1])]
   avg_traj = [mean(traj[i] for traj in trajs) for i in 1:length(trajs[1])]
+
+  #
+  # MAX
+  #
   data_to_plot = hcat(max_traj...)'[1:end, plot_y ? (1:2) : 1]
-  traj_plot = plot!(0:hd:T, data_to_plot, lab=["max. x₁[k]" "max. x₂[k]"], linecolor=[:magenta :cyan], alpha=0.6, linestyle=:dash, fmt=:svg)
+  traj_plot = plot!(0:hd:T, data_to_plot, lab="Max. \$x_1\$", linecolor=:darkred,  alpha=0.6, linestyle=:dash,    markershape=:xcross, lw=:auto, ms=2, mcolor=:darkred, legendfontsize=12, fmt=:svg)
+
+  #
+  # MIN
+  #
   data_to_plot = hcat(min_traj...)'[1:end, plot_y ? (1:2) : 1]
-  traj_plot = plot!(0:hd:T, data_to_plot, lab=["min. x₁[k]" "min. x₂[k]"], linecolor=[:magenta :cyan], alpha=0.6, linestyle=:dash, fmt=:svg)
+  traj_plot = plot!(0:hd:T, data_to_plot, lab="Min. \$x_1\$", linecolor=:purple3,     alpha=0.6, linestyle=:dash,    markershape=:cross, lw=:auto, ms=2, mcolor=:purple3, legendfontsize=12, fmt=:svg)
+
+  #
+  # AVG
+  #
   data_to_plot = hcat(avg_traj...)'[1:end, plot_y ? (1:2) : 1]
-  traj_plot = plot!(0:hd:T, data_to_plot, lab=["avg. x₁[k]" "avg. x₂[k]"], linecolor=[:magenta :cyan], alpha=0.6, linestyle=:dot, fmt=:svg)
+  traj_plot = plot!(0:hd:T, data_to_plot, lab="Avg. \$x_1\$", linecolor=:blue,    alpha=0.6, linestyle=:dashdot, markershape=:circle, lw=:auto, ms=2, mcolor=:blue, legendfontsize=12, fmt=:svg)
 
   if !isnothing(xlim) && !isnothing(ylim)
     xlims!(0, xlim)
